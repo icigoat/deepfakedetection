@@ -9,26 +9,26 @@ import os
 
 
 class Command(BaseCommand):
-    help = 'Clean up old uploaded files and detection records (older than 7 days)'
+    help = 'Clean up old uploaded files and detection records (older than 5 minutes by default)'
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--days',
+            '--minutes',
             type=int,
-            default=7,
-            help='Delete files older than this many days (default: 7)',
+            default=5,
+            help='Delete files older than this many minutes (default: 5)',
         )
 
     def handle(self, *args, **options):
-        days = options['days']
-        cutoff_date = timezone.now() - timedelta(days=days)
+        minutes = options['minutes']
+        cutoff_date = timezone.now() - timedelta(minutes=minutes)
 
         # Find old detections
         old_detections = Detection.objects.filter(created_at__lt=cutoff_date)
         count = old_detections.count()
 
         if count == 0:
-            self.stdout.write(self.style.SUCCESS(f'No files older than {days} days found.'))
+            self.stdout.write(self.style.SUCCESS(f'No files older than {minutes} minutes found.'))
             return
 
         # Delete files and records
@@ -50,6 +50,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f'Successfully deleted {count} detection records and {deleted_files} files older than {days} days.'
+                f'Successfully deleted {count} detection records and {deleted_files} files older than {minutes} minutes.'
             )
         )
