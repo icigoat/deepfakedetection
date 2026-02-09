@@ -28,7 +28,8 @@ COPY --chown=user:user . .
 RUN mkdir -p /home/user/media/uploads /home/user/media/visualizations /home/user/logs && \
     chown -R user:user /home/user
 
-# Run collectstatic
+# Run migrations and collectstatic
+RUN python manage.py migrate --noinput
 RUN python manage.py collectstatic --noinput
 
 # Switch to non-root user
