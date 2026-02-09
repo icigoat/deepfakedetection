@@ -26,8 +26,8 @@ COPY --chown=user:user . .
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /home/user/media/uploads /home/user/media/visualizations /home/user/logs && \
-    mkdir -p /app/logs /app/media/uploads /app/media/visualizations && \
-    chown -R user:user /home/user /app/logs /app/media
+    mkdir -p /app/logs /app/media/uploads /app/media/visualizations /app/staticfiles && \
+    chown -R user:user /home/user /app/logs /app/media /app/staticfiles
 
 # Switch to non-root user BEFORE running migrations
 USER user
