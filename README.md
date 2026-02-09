@@ -1,3 +1,13 @@
+---
+title: AI Image Detector
+emoji: 🔍
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # AI Media Detector - Professional Deepfake Detection System
 
 A production-ready Django web application for detecting AI-generated images and videos using advanced forensic analysis and deep learning. Features a sophisticated dark-themed UI with enterprise-grade analysis capabilities.

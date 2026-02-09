@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+!README.md
+
+# Deployment files
+.vercel/
+.vercelignore
+vercel.json
+VERCEL_*.md
+DEPLOYMENT.md
+Procfile
+runtime.txt
+build_files.sh
+start_dev.bat
+start_dev.sh
+wsgi.py
+
+# Test files
+colab_code.py

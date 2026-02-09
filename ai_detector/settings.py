@@ -34,9 +34,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-rnf_$*(m4gr(s)nkv=ekcm*^c6rsvorxy^dn_rno+&pq#2w04!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
+
+# CSRF trusted origins for Hugging Face Spaces
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.hf.space',
+    'https://*.huggingface.co'
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -104,11 +110,13 @@ elif config('USE_POSTGRES', default=False, cast=bool):
         }
     }
 else:
-    # SQLite for development/Vercel
+    # SQLite for development/Vercel/HF Spaces
+    # Use HOME directory for writable location on HF Spaces
+    db_path = os.path.join(os.environ.get('HOME', '.'), 'db.sqlite3')
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': db_path,
         }
     }
 
@@ -138,7 +146,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Use HOME directory for writable location on HF Spaces
+MEDIA_ROOT = os.path.join(os.environ.get('HOME', '.'), 'media')
 
 # For Vercel, you should use external storage like AWS S3, Cloudinary, etc.
 # Vercel's filesystem is read-only except for /tmp
