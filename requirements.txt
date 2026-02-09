@@ -7,10 +7,9 @@ numpy>=1.24.0
 scipy>=1.11.0
 Pillow>=10.0.0
 
-# Deep Learning (CPU-only PyTorch for memory efficiency)
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.2.0+cpu
-torchvision==0.17.0+cpu
+# Deep Learning (PyTorch for ResNet18)
+torch>=2.0.0
+torchvision>=0.15.0
 
 # Production Server
 gunicorn>=21.2.0
