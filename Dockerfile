@@ -28,17 +28,17 @@ COPY --chown=user:user . .
 RUN mkdir -p /home/user/media/uploads /home/user/media/visualizations /home/user/logs && \
     chown -R user:user /home/user
 
-# Run migrations and collectstatic
-RUN python manage.py migrate --noinput
-RUN python manage.py collectstatic --noinput
-
-# Switch to non-root user
+# Switch to non-root user BEFORE running migrations
 USER user
 
 # Set environment variables
 ENV HOME=/home/user \
     PATH=/home/user/.local/bin:$PATH \
     PYTHONUNBUFFERED=1
+
+# Run migrations and collectstatic as the user
+RUN python manage.py migrate --noinput
+RUN python manage.py collectstatic --noinput
 
 # Expose port 7860 (required by HF Spaces)
 EXPOSE 7860
