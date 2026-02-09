@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analysis Results – AI Media Detector</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --dark: #111118;
+      --violet: #6d28d9;
+      --light-violet: #a78bfa;
+      --text: #e0e0ff;
+      --text-muted: #a0a0cc;
+      --accent: #7c3aed;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --glow: rgba(109, 40, 217, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+      background-image: radial-gradient(circle at 50% 0%, var(--glow) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ─── HEADER ─── */
+    header {
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(109, 40, 217, 0.2);
+    }
+    nav { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.2rem; font-weight: 800; color: var(--light-violet); text-decoration: none; }
+
+    /* ─── SCORE BANNER ─── */
+    .score-banner {
+      background: rgba(30, 30, 45, 0.4);
+      border: 1px solid rgba(109, 40, 217, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .score-value { font-size: 3.5rem; font-weight: 800; color: #fff; }
+    .verdict-box { flex-grow: 1; }
+    .verdict-text { font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .confidence-text { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* ─── MEDIA INFO BAR ─── */
+    .media-info-bar {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding: 0.8rem 1.2rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .info-tag { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); }
+    .info-tag strong { color: #fff; }
+
+    /* ─── VISUALIZATIONS ─── */
+    .viz-section { margin-bottom: 1.5rem; }
+    .viz-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    .viz-item { 
+        background: var(--dark); 
+        padding: 0.5rem; 
+        border-radius: 8px; 
+        border: 1px solid rgba(255,255,255,0.05);
+        text-align: center;
+    }
+    .viz-item img, .viz-item video { width: 100%; border-radius: 4px; aspect-ratio: 16/9; object-fit: cover; }
+    .viz-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-weight: 600; }
+
+    /* ─── BOTTOM GRID (2 COLUMNS) ─── */
+    .analysis-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; align-items: start; }
+
+    .card {
+      background: rgba(30, 30, 45, 0.3);
+      border: 1px solid rgba(109, 40, 217, 0.2);
+      border-radius: 12px;
+      padding: 1.2rem;
+    }
+    .card-title { font-size: 1rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; color: var(--light-violet); }
+
+    /* EVIDENCE LIST */
+    .evidence-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .evidence-item {
+      background: rgba(255, 255, 255, 0.02);
+      padding: 1rem;
+      border-radius: 6px;
+      border-left: 3px solid var(--danger);
+    }
+    .evidence-desc { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .evidence-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* COMPONENTS & CHART */
+    .chart-container { height: 220px; margin-bottom: 1.5rem; }
+    .component-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .component-row { display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; }
+    .comp-label { width: 80px; color: var(--text-muted); }
+    .comp-bar-bg { flex-grow: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+    .comp-bar-fill { height: 100%; background: var(--danger); border-radius: 10px; transition: width 1s ease-in-out; }
+    .comp-val { width: 30px; text-align: right; font-weight: 700; }
+
+    .btn {
+      background: var(--violet);
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1000px) {
+      .analysis-grid, .viz-grid { grid-template-columns: 1fr; }
+      .viz-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <nav>
+        <a href="/" class="logo">AI MEDIA DETECTOR</a>
+        <a href="/" class="btn"><i class="fas fa-plus"></i> New Analysis</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <div class="score-banner">
+      <div class="score-value">{{ detection.score|floatformat:0 }}</div>
+      <div class="verdict-box">
+        <div class="verdict-text">{{ detection.verdict }} ({{ detection.score|floatformat:0 }}±12)</div>
+        <div class="confidence-text"><i class="fas fa-bullseye"></i> {{ detection.confidence|floatformat:0 }}% Confidence</div>
+      </div>
+      <div class="btn" style="background: rgba(255,255,255,0.1)">
+        <i class="fas fa-video"></i> VIDEO
+      </div>
+    </div>
+
+    <div class="media-info-bar">
+      <div class="info-tag"><i class="fas fa-expand"></i> Resolution: <strong>{{ detection.info.width }}×{{ detection.info.height }}</strong></div>
+      <div class="info-tag"><i class="fas fa-clock"></i> FPS: <strong>{{ detection.info.fps|floatformat:1 }}</strong></div>
+      <div class="info-tag"><i class="fas fa-layer-group"></i> Frames: <strong>{{ detection.info.total_frames }}</strong></div>
+    </div>
+
+    <div class="viz-section">
+      <div class="viz-grid">
+        <div class="viz-item">
+          {% if detection.file_type == 'video' %}
+            <video src="{{ detection.file.url }}" controls></video>
+          {% else %}
+            <img src="{{ detection.file.url }}" alt="Original">
+          {% endif %}
+          <div class="viz-label">Original Media</div>
+        </div>
+        <div class="viz-item">
+          <img src="{{ detection.fft_image.url }}" alt="FFT">
+          <div class="viz-label">FFT Spectrum</div>
+        </div>
+        <div class="viz-item">
+          <img src="{{ detection.ela_image.url }}" alt="ELA">
+          <div class="viz-label">ELA Map</div>
+        </div>
+        <div class="viz-item">
+          <img src="{{ detection.noise_image.url }}" alt="Noise">
+          <div class="viz-label">Noise Pattern</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      
+      <div class="card">
+        <h3 class="card-title"><i class="fas fa-search"></i> Evidence ({{ evidence_list|length }})</h3>
+        <div class="evidence-list">
+          {% for evidence in evidence_list %}
+          <div class="evidence-item">
+            <div class="evidence-desc">{{ evidence.description }}</div>
+            <div class="evidence-meta">{{ evidence.category|title }} • Score: {{ evidence.strength|floatformat:2 }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Component Analysis</h3>
+        
+        <div class="chart-container">
+          <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="component-list">
+          {% for key, value in components.items %}
+          <div class="component-row">
+            <span class="comp-label">{{ key|title }}</span>
+            <div class="comp-bar-bg">
+              <div class="comp-bar-fill" style="width: {{ value }}%; background: {% if value > 50 %}var(--danger){% else %}var(--violet){% endif %};"></div>
+            </div>
+            <span class="comp-val">{{ value|floatformat:0 }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      const components = {{ components|safe }};
+      
+      const labels = Object.keys(components).map(k => k.charAt(0).toUpperCase() + k.slice(1, 4));
+      const dataValues = Object.values(components);
+
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataValues,
+            backgroundColor: 'rgba(109, 40, 217, 0.2)',
+            borderColor: 'rgba(167, 139, 250, 1)',
+            borderWidth: 2,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              angleLines: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { display: false },
+              pointLabels: { color: '#a0a0cc', font: { size: 10 } }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
