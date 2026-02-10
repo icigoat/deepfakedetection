@@ -1,12 +1,4 @@
----
-title: AI Image Detector
-emoji: 🔍
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
----
+
 
 # AI Media Detector - Professional Deepfake Detection System
 
@@ -15,6 +7,7 @@ A production-ready Django web application for detecting AI-generated images and 
 ## 🎯 Key Features
 
 ### Core Detection Capabilities
+
 - 🔊 **Frequency Analysis** - FFT spectrum analysis with spectral slope detection
 - 📡 **Noise Detection** - Multi-scale noise pattern recognition with 9 metrics
 - 🔬 **ELA Detection** - Error Level Analysis at multiple quality levels (75/85/95)
@@ -27,6 +20,7 @@ A production-ready Django web application for detecting AI-generated images and 
 - 📋 **Metadata Analysis** - Duration and resolution checks for videos
 
 ### Advanced Features
+
 - 🎯 **Context-Aware Scoring** - Adjusts for JPEG compression, image size, and document photos
 - 💡 **Intelligent Interpretation** - Clear conclusions with confidence levels
 - 📊 **Interactive Visualizations** - Radar charts, progress bars, forensic images
@@ -34,17 +28,21 @@ A production-ready Django web application for detecting AI-generated images and 
 - 🔒 **Privacy First** - No data retention, files processed in memory
 - ⚡ **Fast Processing** - Optimized inference pipelines
 - 📱 **Fully Responsive** - Works on desktop, tablet, and mobile
+- 📲 **Progressive Web App** - Installable on any device, works offline
 
 ## 🆕 Version 3.0 - Complete Implementation
 
 ### What's New
+
 ✅ **Deep Feature Analyzer** - Full PyTorch ResNet18 implementation with hooks
 ✅ **Temporal Analyzer** - Complete optical flow analysis with 9 metrics
 ✅ **Metadata Analyzer** - Video duration and resolution checks
 ✅ **Professional UI** - Dark theme with glassmorphism and violet accents
+✅ **Progressive Web App** - Installable app with offline support
 ✅ **100% Colab Match** - Exact implementation matching reference code
 
 ### Analysis Accuracy
+
 - **Images**: ~100% match with reference implementation
 - **Videos**: ~100% match with reference implementation
 - **All Components**: Fully functional and tested
@@ -52,6 +50,7 @@ A production-ready Django web application for detecting AI-generated images and 
 ## 📦 Installation
 
 ### Prerequisites
+
 - Python 3.8 or higher
 - pip package manager
 - 4GB+ RAM recommended
@@ -60,12 +59,14 @@ A production-ready Django web application for detecting AI-generated images and 
 ### Setup Steps
 
 1. **Clone the Repository**
+
 ```bash
 git clone <repository-url>
 cd deepfakedetection
 ```
 
 2. **Create Virtual Environment** (Recommended)
+
 ```bash
 python -m venv venv
 # Windows
@@ -75,45 +76,50 @@ source venv/bin/activate
 ```
 
 3. **Install Dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 4. **Run Migrations**
+
 ```bash
 python manage.py migrate
 ```
 
 5. **Create Media Directories**
+
 ```bash
 python manage.py collectstatic --noinput
 ```
 
 6. **Start Development Server**
+
 ```bash
 python manage.py runserver
 ```
 
 7. **Access the Application**
-Open your browser and navigate to: `http://127.0.0.1:8000/`
+   Open your browser and navigate to: `http://127.0.0.1:8000/`
 
 ## 🚀 Quick Start
 
 ### Using the Web Interface
 
 1. **Upload Media**
+
    - Visit the homepage
    - Drag and drop or click to browse
    - Supported formats:
      - **Images**: JPG, PNG, WebP, BMP, TIFF, GIF
      - **Videos**: MP4, AVI, MOV, MKV, WebM
-
 2. **Analyze**
+
    - Click "Analyze Now" after uploading
    - Wait for forensic analysis (typically 5-30 seconds)
    - View comprehensive results
-
 3. **Interpret Results**
+
    - **Score**: 0-100 (higher = more AI-like)
    - **Confidence**: How certain the analysis is
    - **Verdict**: Clear conclusion (REAL, SUSPICIOUS, LIKELY AI, etc.)
@@ -126,6 +132,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 ### 8 Core Analyzers
 
 #### 1. Frequency Analyzer (8 metrics)
+
 - **Spectral Slope**: Measures frequency decay rate
 - **HF Energy Ratio**: High-frequency energy content
 - **Spectral Fit R²**: Quality of power-law fit
@@ -136,6 +143,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 **Why it works**: AI generators often produce unnaturally flat frequency spectrums
 
 #### 2. Noise Analyzer (9 metrics)
+
 - **Noise Uniformity**: Spatial consistency of noise
 - **Noise-Brightness Correlation**: Relationship between noise and brightness
 - **Noise Spatial CV**: Regional noise variation
@@ -147,6 +155,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 **Why it works**: Real cameras have characteristic noise patterns; AI doesn't
 
 #### 3. ELA Analyzer (Multiple quality levels)
+
 - Recompresses at 75%, 85%, 95% quality
 - Measures compression inconsistencies
 - Detects manipulated regions
@@ -156,6 +165,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 **Why it works**: Manipulated regions compress differently than originals
 
 #### 4. SRM Analyzer (3 metrics)
+
 - **SRM Energy Mean**: Manipulation artifact strength
 - **SRM Energy Std**: Consistency of artifacts
 - **SRM Kurtosis**: Statistical distribution
@@ -163,6 +173,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 **Why it works**: Spatial Rich Model filters detect manipulation traces
 
 #### 5. Color Analyzer (9 metrics)
+
 - **Edge Alignment**: Chromatic aberration detection
 - **Color Entropy**: Color distribution complexity
 - **Color Histogram Roughness**: Histogram smoothness
@@ -172,6 +183,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 **Why it works**: Real cameras have chromatic aberration; AI doesn't
 
 #### 6. Texture Analyzer (9 metrics)
+
 - **LBP Entropy**: Local Binary Pattern complexity
 - **GLCM Energy**: Gray-Level Co-occurrence patterns
 - **Edge Sharpness CV**: Edge consistency
@@ -181,6 +193,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 **Why it works**: AI textures are often too uniform or repetitive
 
 #### 7. Pixel Analyzer (6 metrics)
+
 - **Checkerboard Detection**: Multi-scale pattern detection
 - **Grid Score**: Regular grid patterns
 - **Histogram Gaps**: Missing intensity values
@@ -189,6 +202,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 **Why it works**: AI generators leave characteristic pixel patterns
 
 #### 8. Compression Analyzer (2 metrics)
+
 - **Block Boundary Ratio**: 8×8 block artifacts
 - **DCT Consistency**: Discrete Cosine Transform patterns
 
@@ -197,6 +211,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 ### Deep Learning Component
 
 **ResNet18 Feature Extraction**
+
 - Pre-trained on ImageNet
 - Hooks on layer3 and layer4
 - Computes feature sparsity, std, kurtosis
@@ -205,6 +220,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 ### Video-Specific Analysis
 
 **Temporal Analyzer (9 metrics)**
+
 - **Optical Flow**: Motion consistency using Farneback algorithm
 - **Noise Correlation**: Frame-to-frame noise patterns
 - **Color Shifts**: Color stability across frames
@@ -212,6 +228,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 - **Motion Jerk**: Acceleration changes
 
 **Metadata Analyzer**
+
 - Video duration checks (flags very short clips)
 - Non-standard resolution detection
 - Aspect ratio analysis
@@ -219,6 +236,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 ### Scoring System
 
 #### Component Weights (Images)
+
 - Frequency: 20%
 - Noise: 18%
 - ELA: 12%
@@ -229,6 +247,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 - Deep: 8%
 
 #### Component Weights (Videos)
+
 - Frequency: 15%
 - Noise: 14%
 - ELA: 10%
@@ -241,6 +260,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 - Deep: 7%
 
 #### Score Interpretation
+
 - **0-18**: ✅ Consistent with real media
 - **18-30**: 🔍 Mostly real with minor anomalies
 - **30-45**: 🤔 Suspicious, possible AI or editing
@@ -248,7 +268,9 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 - **60-100**: 🤖 Strong AI indicators
 
 #### Confidence Calculation
+
 Based on:
+
 - Number of independent categories with signals
 - Strength of evidence
 - Deviation from expected ranges
@@ -320,21 +342,25 @@ deepfakedetection/
 ## 🛠️ Technical Stack
 
 ### Backend
+
 - **Framework**: Django 4.2+
 - **Language**: Python 3.8+
 - **Database**: SQLite (easily upgradeable to PostgreSQL)
 
 ### Image/Video Processing
+
 - **OpenCV**: 4.8+ (computer vision operations)
 - **NumPy**: 1.24+ (numerical computations)
 - **SciPy**: 1.11+ (scientific computing, FFT, filters)
 - **Pillow**: 10.0+ (image I/O and manipulation)
 
 ### Deep Learning
+
 - **PyTorch**: 2.0+ (ResNet18 feature extraction)
 - **TorchVision**: 0.15+ (pre-trained models)
 
 ### Frontend
+
 - **HTML5/CSS3**: Modern responsive design
 - **JavaScript**: ES6+ for interactivity
 - **Chart.js**: Interactive radar charts
@@ -342,6 +368,7 @@ deepfakedetection/
 - **Custom CSS**: Glassmorphism, dark theme
 
 ### Algorithms
+
 - **FFT**: Fast Fourier Transform (SciPy)
 - **Optical Flow**: Farneback algorithm (OpenCV)
 - **Edge Detection**: Canny, Sobel operators
@@ -351,6 +378,7 @@ deepfakedetection/
 ## 🎨 UI/UX Features
 
 ### Design Philosophy
+
 - **Dark Theme**: Professional violet/purple accents (#6d28d9, #a78bfa)
 - **Glassmorphism**: Backdrop blur with semi-transparent cards
 - **Smooth Animations**: Transitions, progress bars, hover effects
@@ -358,6 +386,7 @@ deepfakedetection/
 - **Accessibility**: High contrast, clear typography
 
 ### Key UI Components
+
 - **Hero Section**: Large gradient headlines
 - **Upload Zone**: Drag-and-drop with visual feedback
 - **Score Display**: Dramatic score presentation with grid overlay
@@ -369,6 +398,7 @@ deepfakedetection/
 ## ⚙️ Configuration
 
 ### Django Settings (ai_detector/settings.py)
+
 ```python
 # Media files
 MEDIA_URL = '/media/'
@@ -384,6 +414,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB
 ```
 
 ### Analysis Parameters
+
 ```python
 # Frame extraction (videos)
 MAX_FRAMES = 30
@@ -403,6 +434,7 @@ MAX_CONFIDENCE = 90
 ## ⚠️ Limitations & Considerations
 
 ### Technical Limitations
+
 - **Probabilistic Analysis**: Results are statistical, not definitive proof
 - **Quality Dependent**: Analysis accuracy depends on media quality
 - **False Positives**: High-quality real media may trigger some signals
@@ -411,13 +443,16 @@ MAX_CONFIDENCE = 90
 - **Processing Time**: 5-30 seconds depending on file size and complexity
 
 ### Context Adjustments
+
 The system automatically adjusts for:
+
 - **JPEG Compression**: Reduces score by 30%, caps confidence at 55%
 - **Small Images** (<512px): Reduces score by 20%, caps confidence at 60%
 - **Document Photos**: Reduces score by 25%, caps confidence at 50%
 - **Lossless Formats** (PNG, BMP, TIFF): Full analysis without JPEG penalties
 
 ### Known Edge Cases
+
 - **Heavily edited real photos**: May show AI-like patterns
 - **Professional studio photos**: Very clean, may lack expected artifacts
 - **Scanned documents**: May trigger document photo detection
@@ -427,6 +462,7 @@ The system automatically adjusts for:
 ## 🔒 Privacy & Security
 
 ### Data Handling
+
 - ✅ **No Cloud Storage**: Files processed locally
 - ✅ **Temporary Storage**: Files stored only during analysis
 - ✅ **Database Records**: Only metadata and scores stored
@@ -434,6 +470,7 @@ The system automatically adjusts for:
 - ✅ **Open Source**: Full transparency of analysis methods
 
 ### Recommendations
+
 - Don't upload sensitive or private content
 - Results are stored in local database
 - Clear database periodically: `python manage.py flush`
@@ -443,6 +480,7 @@ The system automatically adjusts for:
 ## 🚀 Deployment
 
 ### Production Checklist
+
 ```bash
 # 1. Update settings
 DEBUG = False
@@ -465,6 +503,7 @@ python manage.py collectstatic
 ```
 
 ### Environment Variables
+
 ```bash
 SECRET_KEY=your-secret-key
 DEBUG=False
@@ -475,6 +514,7 @@ ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 ## 📊 Performance
 
 ### Benchmarks (Approximate)
+
 - **Image Analysis**: 3-8 seconds
 - **Video Analysis**: 10-30 seconds (30 frames)
 - **Deep Learning**: +2-5 seconds (with GPU: +0.5-1s)
@@ -482,6 +522,7 @@ ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 - **CPU Usage**: High during analysis, idle otherwise
 
 ### Optimization Tips
+
 - Use GPU for faster deep learning inference
 - Reduce MAX_FRAMES for faster video analysis
 - Implement caching for repeated analyses
@@ -491,6 +532,7 @@ ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 ## 🧪 Testing
 
 ### Manual Testing
+
 ```bash
 # Test with sample images
 python manage.py runserver
@@ -498,6 +540,7 @@ python manage.py runserver
 ```
 
 ### Unit Tests (Future)
+
 ```bash
 python manage.py test detector
 ```
@@ -505,6 +548,7 @@ python manage.py test detector
 ## 🤝 Contributing
 
 ### Development Setup
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -512,6 +556,7 @@ python manage.py test detector
 5. Submit a pull request
 
 ### Code Style
+
 - Follow PEP 8 for Python
 - Use meaningful variable names
 - Add docstrings to functions
@@ -521,17 +566,20 @@ python manage.py test detector
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [FEATURES.md](FEATURES.md) - Detailed feature list
 - [IMPROVEMENTS.md](IMPROVEMENTS.md) - Technical improvements
 - [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Detailed structure
 - [QUICKSTART.md](QUICKSTART.md) - Quick start guide
 
 ### Research Papers
+
 - "Detecting GAN-Generated Images" (various papers)
 - "Deepfake Detection: A Systematic Literature Review"
 - "Forensic Analysis of AI-Generated Media"
 
 ### Related Projects
+
 - FaceForensics++
 - Deepfake Detection Challenge (DFDC)
 - Celeb-DF dataset
@@ -541,24 +589,28 @@ python manage.py test detector
 ### Common Issues
 
 **1. PyTorch Installation Fails**
+
 ```bash
 # Try CPU-only version
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 ```
 
 **2. OpenCV Import Error**
+
 ```bash
 pip uninstall opencv-python opencv-python-headless
 pip install opencv-python-headless
 ```
 
 **3. Memory Error During Analysis**
+
 ```bash
 # Reduce MAX_FRAMES in detector.py
 MAX_FRAMES = 15  # Instead of 30
 ```
 
 **4. Slow Analysis**
+
 ```bash
 # Install GPU version of PyTorch
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
@@ -567,6 +619,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 ## 📝 Changelog
 
 ### Version 3.0 (Current)
+
 - ✅ Complete deep learning implementation (ResNet18)
 - ✅ Full temporal analysis with optical flow
 - ✅ Metadata analyzer for videos
@@ -574,6 +627,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 - ✅ 100% feature parity with reference implementation
 
 ### Version 2.0
+
 - ✅ Context-aware image scoring
 - ✅ JPEG compression detection
 - ✅ Small image handling
@@ -581,6 +635,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 - ✅ Improved confidence calculation
 
 ### Version 1.0
+
 - ✅ Basic forensic analysis
 - ✅ 5 core analyzers
 - ✅ Simple scoring system
@@ -591,6 +646,7 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 This project is for **educational and research purposes only**.
 
 ### Usage Terms
+
 - ✅ Free for personal use
 - ✅ Free for academic research
 - ✅ Free for non-commercial projects
@@ -598,16 +654,19 @@ This project is for **educational and research purposes only**.
 - ❌ No warranty or liability
 
 ### Disclaimer
+
 This tool provides probabilistic analysis and should not be used as sole evidence for any legal or official purposes. Results are for informational purposes only.
 
 ## 👥 Credits
 
 ### Development
+
 - Based on academic research in digital forensics
 - Inspired by FaceForensics++ and DFDC datasets
 - Reference implementation from Colab research notebook
 
 ### Technologies
+
 - Django Web Framework
 - OpenCV Computer Vision Library
 - PyTorch Deep Learning Framework
@@ -617,12 +676,14 @@ This tool provides probabilistic analysis and should not be used as sole evidenc
 ## 📧 Contact & Support
 
 ### Getting Help
+
 - 📖 Read the documentation first
 - 🐛 Check existing issues on GitHub
 - 💬 Open a new issue for bugs
 - 💡 Suggest features via issues
 
 ### Acknowledgments
+
 Special thanks to the computer vision and deepfake detection research community for their groundbreaking work in this field.
 
 ---

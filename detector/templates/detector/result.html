@@ -13,6 +13,7 @@
   
   <!-- PWA Manifest -->
   <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png">
   <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
   
@@ -34,6 +35,8 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
@@ -42,6 +45,7 @@
       line-height: 1.4;
       background-image: radial-gradient(circle at 50% 0%, var(--glow) 0%, transparent 50%);
       background-attachment: fixed;
+      -webkit-overflow-scrolling: touch;
     }
 
     .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; }
@@ -135,11 +139,83 @@
       border-radius: 6px;
       font-size: 0.8rem;
       font-weight: 600;
+      /* Touch-friendly */
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
+    /* ─── MOBILE RESPONSIVE ─── */
     @media (max-width: 1000px) {
-      .analysis-grid, .viz-grid { grid-template-columns: 1fr; }
+      .analysis-grid { grid-template-columns: 1fr; }
       .viz-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    @media (max-width: 768px) {
+      /* Container */
+      .container { padding: 0 1rem; }
+      
+      /* Header */
+      .logo { font-size: 1rem; }
+      .btn { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+      
+      /* Score Banner */
+      .score-banner { 
+        flex-direction: column; 
+        padding: 1.5rem; 
+        gap: 1rem; 
+        text-align: center; 
+      }
+      .score-value { font-size: 2.5rem; }
+      .verdict-text { font-size: 1rem; }
+      .confidence-text { font-size: 0.85rem; }
+      
+      /* Media Info Bar */
+      .media-info-bar { 
+        flex-direction: column; 
+        gap: 0.8rem; 
+        padding: 1rem; 
+        font-size: 0.8rem; 
+      }
+      .info-tag { justify-content: center; }
+      
+      /* Visualizations */
+      .viz-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .viz-item { padding: 0.8rem; }
+      .viz-label { font-size: 0.7rem; }
+      
+      /* Cards */
+      .card { padding: 1rem; }
+      .card-title { font-size: 0.9rem; margin-bottom: 1rem; }
+      
+      /* Evidence */
+      .evidence-list { gap: 0.6rem; }
+      .evidence-item { padding: 0.8rem; }
+      .evidence-desc { font-size: 0.85rem; }
+      .evidence-meta { font-size: 0.7rem; }
+      
+      /* Chart */
+      .chart-container { height: 180px; margin-bottom: 1rem; }
+      
+      /* Components */
+      .component-row { font-size: 0.75rem; gap: 0.5rem; }
+      .comp-label { width: 60px; font-size: 0.7rem; }
+      .comp-bar-bg { height: 5px; }
+      .comp-val { width: 25px; font-size: 0.75rem; }
+    }
+    
+    @media (max-width: 480px) {
+      /* Extra small screens */
+      .score-value { font-size: 2rem; }
+      .verdict-text { font-size: 0.9rem; }
+      .media-info-bar { font-size: 0.75rem; }
+      .card-title { font-size: 0.85rem; }
+      .evidence-desc { font-size: 0.8rem; }
+      .chart-container { height: 160px; }
     }
   </style>
 </head>
