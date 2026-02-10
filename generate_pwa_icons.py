@@ -6,8 +6,25 @@ Run this script to create all required icon sizes
 from PIL import Image
 import os
 
-# Source icon
-source_icon = 'static/icons/modern_app.png'
+# Try multiple possible locations for source icon
+possible_sources = [
+    'staticfiles/icons/modern_app.png',
+    'static/icons/modern_app.png',
+    'detector/static/icons/modern_app.png',
+]
+
+source_icon = None
+for path in possible_sources:
+    if os.path.exists(path):
+        source_icon = path
+        break
+
+if not source_icon:
+    print('❌ Source icon not found in any of these locations:')
+    for path in possible_sources:
+        print(f'   - {path}')
+    print('\n⚠️  Skipping icon generation')
+    exit(0)  # Exit gracefully, don't fail the build
 
 # Create icons directory
 icons_dir = 'detector/static/icons'
@@ -37,12 +54,6 @@ def create_icon(size):
     except Exception as e:
         print(f'❌ Error creating {size}x{size}: {e}')
 
-# Check if source icon exists
-if not os.path.exists(source_icon):
-    print(f'❌ Source icon not found: {source_icon}')
-    print('Please ensure modern_app.png exists in static/icons/')
-    exit(1)
-
 print(f'📦 Using source icon: {source_icon}')
 print('🎨 Generating PWA icons...\n')
 
@@ -50,7 +61,7 @@ print('🎨 Generating PWA icons...\n')
 for size in sizes:
     create_icon(size)
 
-# Also copy the 512x512 as favicon
+# Also create favicon
 try:
     img = Image.open(source_icon)
     if img.mode != 'RGBA':

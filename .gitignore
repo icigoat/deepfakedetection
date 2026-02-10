@@ -62,8 +62,4 @@ test_video.mp4
 # Gunicorn
 gunicorn.sock
 gunicorn.pid
-
-# Generated PWA icons (will be generated during build)
-detector/static/icons/icon-*.png
-detector/static/favicon.ico
-"static/icons/modern_app.png" 
+ 
