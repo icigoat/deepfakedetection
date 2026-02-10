@@ -29,6 +29,9 @@ RUN mkdir -p /home/user/media/uploads /home/user/media/visualizations /home/user
     mkdir -p /app/logs /app/media/uploads /app/media/visualizations /app/staticfiles && \
     chown -R user:user /home/user /app/logs /app/media /app/staticfiles
 
+# Generate PWA icons from source
+RUN python generate_pwa_icons.py || echo "Warning: Could not generate PWA icons"
+
 # Switch to non-root user BEFORE running migrations
 USER user
 
