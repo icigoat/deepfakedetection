@@ -1,4 +1,12 @@
-
+---
+title: Deepfake Detection
+emoji: 🔍
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
 
 # AI Media Detector - Professional Deepfake Detection System
 
