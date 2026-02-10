@@ -1,8 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
 from django.views.decorators.csrf import csrf_exempt
-from .models import Detection
+from .models import Detection, AnonymousUser
 from .detector import AIDetector
 import cv2
 import numpy as np
@@ -118,6 +118,10 @@ def analyze(request):
                 'context': context_data,
             }
 
+            # Get or create anonymous user
+            from .user_tracking import get_or_create_anonymous_user
+            anonymous_user = get_or_create_anonymous_user(request)
+
             detection = Detection(
                 file=uploaded_file,
                 file_type='image' if info_data.get('is_image') else 'video',
@@ -127,8 +131,13 @@ def analyze(request):
                 components=components,
                 evidence=evidence_list,
                 info=final_info,
+                anonymous_user=anonymous_user,
             )
             detection.save()
+            
+            # Update user's detection count
+            anonymous_user.detection_count += 1
+            anonymous_user.save(update_fields=['detection_count'])
 
             # ── Save visualization images (raw numpy arrays) ──
             for key in ['fft', 'ela', 'noise']:
@@ -164,10 +173,22 @@ def analyze(request):
             os.unlink(temp_file.name)
             detector.cleanup()
 
-            return JsonResponse({
-                'success': True,
-                'detection_id': detection.id
-            })
+            # Check if anime slugs are enabled
+            from .models import SiteSettings
+            settings = SiteSettings.get_settings()
+            
+            if settings.use_anime_slugs and detection.slug:
+                return JsonResponse({
+                    'success': True,
+                    'use_slugs': True,
+                    'detection_slug': detection.slug
+                })
+            else:
+                return JsonResponse({
+                    'success': True,
+                    'use_slugs': False,
+                    'detection_id': detection.id
+                })
 
         except Exception as e:
             traceback.print_exc()
@@ -184,8 +205,78 @@ def analyze(request):
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
 
-def result(request, detection_id):
+def result_by_slug(request, slug):
+    """Result view using anime slug"""
+    detection = get_object_or_404(Detection, slug=slug)
+    
+    # Increment view count
+    detection.increment_views()
+    
+    # Get anonymous user
+    from .user_tracking import get_or_create_anonymous_user
+    anonymous_user = get_or_create_anonymous_user(request)
+    
+    # Parse evidence
+    evidence_list = []
+    if detection.evidence:
+        if isinstance(detection.evidence, dict):
+            # If evidence is a dict
+            for category, items in detection.evidence.items():
+                for item in items:
+                    evidence_list.append({
+                        'category': category,
+                        'description': item.get('description', ''),
+                        'strength': item.get('strength', 0)
+                    })
+        elif isinstance(detection.evidence, list):
+            # If evidence is already a list
+            evidence_list = detection.evidence
+    
+    # Generate share URL
+    share_url = request.build_absolute_uri()
+    
+    context = {
+        'detection': detection,
+        'components': detection.components,
+        'evidence_list': evidence_list,
+        'share_url': share_url,
+    }
+    
+    response = render(request, 'detector/result.html', context)
+    
+    # Set cookie for user tracking
+    from .user_tracking import set_anonymous_user_cookie
+    response = set_anonymous_user_cookie(response, anonymous_user)
+    
+    return response
+
+
+def result_by_id(request, detection_id):
+    """Result view using numeric ID (fallback)"""
     detection = get_object_or_404(Detection, id=detection_id)
+    
+    # Parse evidence
+    evidence_list = []
+    if detection.evidence:
+        if isinstance(detection.evidence, dict):
+            # If evidence is a dict
+            for category, items in detection.evidence.items():
+                for item in items:
+                    evidence_list.append({
+                        'category': category,
+                        'description': item.get('description', ''),
+                        'strength': item.get('strength', 0)
+                    })
+        elif isinstance(detection.evidence, list):
+            # If evidence is already a list
+            evidence_list = detection.evidence
+    
+    context = {
+        'detection': detection,
+        'components': detection.components,
+        'evidence_list': evidence_list,
+    }
+    return render(request, 'detector/result.html', context)
 
     user_interp = None
     context_info = {}
@@ -203,3 +294,93 @@ def result(request, detection_id):
     }
 
     return render(request, 'detector/result.html', context)
+
+
+
+def my_detections(request):
+    """Show user's detection history"""
+    from .user_tracking import get_or_create_anonymous_user
+    
+    anonymous_user = get_or_create_anonymous_user(request)
+    detections = Detection.objects.filter(anonymous_user=anonymous_user).order_by('-created_at')
+    
+    context = {
+        'detections': detections,
+        'user': anonymous_user,
+    }
+    
+    response = render(request, 'detector/my_detections.html', context)
+    
+    # Set cookie for user tracking
+    from .user_tracking import set_anonymous_user_cookie
+    response = set_anonymous_user_cookie(response, anonymous_user)
+    
+    return response
+
+
+def share_detection(request, slug):
+    """Track share and redirect"""
+    detection = get_object_or_404(Detection, slug=slug)
+    detection.increment_shares()
+    
+    # Redirect to result page
+    return redirect('detector:result', slug=slug)
+
+
+def stats_dashboard(request):
+    """Admin statistics dashboard"""
+    from django.db.models import Count, Avg
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    # Check if user is admin
+    if not request.user.is_staff:
+        return redirect('detector:index')
+    
+    now = timezone.now()
+    today = now.date()
+    week_ago = now - timedelta(days=7)
+    month_ago = now - timedelta(days=30)
+    
+    # Statistics
+    total_detections = Detection.objects.count()
+    total_users = AnonymousUser.objects.count()
+    
+    detections_today = Detection.objects.filter(created_at__date=today).count()
+    detections_week = Detection.objects.filter(created_at__gte=week_ago).count()
+    detections_month = Detection.objects.filter(created_at__gte=month_ago).count()
+    
+    users_today = AnonymousUser.objects.filter(first_visit__date=today).count()
+    users_week = AnonymousUser.objects.filter(first_visit__gte=week_ago).count()
+    users_month = AnonymousUser.objects.filter(first_visit__gte=month_ago).count()
+    
+    # Verdict breakdown
+    verdict_stats = Detection.objects.values('verdict').annotate(count=Count('id')).order_by('-count')
+    
+    # Average scores
+    avg_score = Detection.objects.aggregate(Avg('score'))['score__avg'] or 0
+    avg_confidence = Detection.objects.aggregate(Avg('confidence'))['confidence__avg'] or 0
+    
+    # Most active users
+    top_users = AnonymousUser.objects.order_by('-detection_count')[:10]
+    
+    # Recent detections
+    recent_detections = Detection.objects.select_related('anonymous_user').order_by('-created_at')[:20]
+    
+    context = {
+        'total_detections': total_detections,
+        'total_users': total_users,
+        'detections_today': detections_today,
+        'detections_week': detections_week,
+        'detections_month': detections_month,
+        'users_today': users_today,
+        'users_week': users_week,
+        'users_month': users_month,
+        'verdict_stats': verdict_stats,
+        'avg_score': avg_score,
+        'avg_confidence': avg_confidence,
+        'top_users': top_users,
+        'recent_detections': recent_detections,
+    }
+    
+    return render(request, 'detector/stats_dashboard.html', context)

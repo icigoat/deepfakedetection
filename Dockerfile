@@ -44,6 +44,9 @@ ENV HOME=/home/user \
 RUN python manage.py migrate --noinput
 RUN python manage.py collectstatic --noinput
 
+# Create superuser automatically (optional - for production)
+RUN python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('user', '', '4@MdcGb53+zwVbAiFEcL') if not User.objects.filter(username='user').exists() else None" || echo "Superuser creation skipped"
+
 # Expose port 7860 (required by HF Spaces)
 EXPOSE 7860
 

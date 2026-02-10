@@ -100,6 +100,91 @@
     .viz-item img, .viz-item video { width: 100%; border-radius: 4px; aspect-ratio: 16/9; object-fit: cover; }
     .viz-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-weight: 600; }
 
+    /* Interactive Image Viewer */
+    .image-viewer-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+    .image-viewer-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      overflow: hidden;
+    }
+    .viewer-image {
+      max-width: 100%;
+      max-height: 90vh;
+      cursor: move;
+      transition: transform 0.3s;
+    }
+    .viewer-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .viewer-btn {
+      background: rgba(109, 40, 217, 0.8);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    .viewer-btn:hover { background: var(--light-violet); }
+    .viz-item { cursor: pointer; position: relative; }
+    .viz-item:hover::after {
+      content: '🔍 Click to zoom';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 300px;
+      background-color: rgba(30, 30, 45, 0.95);
+      color: var(--text);
+      text-align: left;
+      border-radius: 8px;
+      padding: 10px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -150px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      border: 1px solid var(--light-violet);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
     /* ─── BOTTOM GRID (2 COLUMNS) ─── */
     .analysis-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; align-items: start; }
 
@@ -225,7 +310,12 @@
     <div class="container">
       <nav>
         <a href="/" class="logo">AI MEDIA DETECTOR</a>
-        <a href="/" class="btn"><i class="fas fa-plus"></i> New Analysis</a>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <a href="/my-detections/" style="color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.3s;">
+            <i class="fas fa-history"></i> My History
+          </a>
+          <a href="/" class="btn"><i class="fas fa-plus"></i> New Analysis</a>
+        </div>
       </nav>
     </div>
   </header>
@@ -249,35 +339,90 @@
       <div class="info-tag"><i class="fas fa-layer-group"></i> Frames: <strong>{{ detection.info.total_frames }}</strong></div>
     </div>
 
+    <!-- Share Buttons -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+      <button onclick="shareTwitter()" class="btn" style="background: #1DA1F2; font-size: 0.9rem;">
+        <i class="fab fa-twitter"></i> Twitter
+      </button>
+      <button onclick="shareFacebook()" class="btn" style="background: #4267B2; font-size: 0.9rem;">
+        <i class="fab fa-facebook"></i> Facebook
+      </button>
+      <button onclick="shareLinkedIn()" class="btn" style="background: #0077B5; font-size: 0.9rem;">
+        <i class="fab fa-linkedin"></i> LinkedIn
+      </button>
+      <button onclick="shareWhatsApp()" class="btn" style="background: #25D366; font-size: 0.9rem;">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+      </button>
+      <button onclick="shareTelegram()" class="btn" style="background: #0088cc; font-size: 0.9rem;">
+        <i class="fab fa-telegram"></i> Telegram
+      </button>
+      <button onclick="copyLink()" class="btn" style="background: #6c757d; font-size: 0.9rem;">
+        <i class="fas fa-link"></i> Copy Link
+      </button>
+    </div>
+
     <div class="viz-section">
       <div class="viz-grid">
         <div class="viz-item">
           {% if detection.file_type == 'video' %}
-            <video src="{{ detection.file.url }}" controls></video>
+            <video src="{{ detection.file.url }}" controls id="mainVideo"></video>
           {% else %}
-            <img src="{{ detection.file.url }}" alt="Original">
+            <img src="{{ detection.file.url }}" alt="Original" onclick="openImageViewer(this.src, 'Original Media')">
           {% endif %}
           <div class="viz-label">Original Media</div>
         </div>
         <div class="viz-item">
-          <img src="{{ detection.fft_image.url }}" alt="FFT">
-          <div class="viz-label">FFT Spectrum</div>
+          <img src="{{ detection.fft_image.url }}" alt="FFT" onclick="openImageViewer(this.src, 'FFT Spectrum Analysis')">
+          <div class="viz-label">
+            FFT Spectrum 
+            <span class="tooltip">ℹ️
+              <span class="tooltiptext">Fast Fourier Transform analyzes frequency patterns. AI-generated images often show unnaturally flat frequency distributions.</span>
+            </span>
+          </div>
         </div>
         <div class="viz-item">
-          <img src="{{ detection.ela_image.url }}" alt="ELA">
-          <div class="viz-label">ELA Map</div>
+          <img src="{{ detection.ela_image.url }}" alt="ELA" onclick="openImageViewer(this.src, 'Error Level Analysis')">
+          <div class="viz-label">
+            ELA Map
+            <span class="tooltip">ℹ️
+              <span class="tooltiptext">Error Level Analysis detects compression inconsistencies. Manipulated regions compress differently than originals.</span>
+            </span>
+          </div>
         </div>
         <div class="viz-item">
-          <img src="{{ detection.noise_image.url }}" alt="Noise">
-          <div class="viz-label">Noise Pattern</div>
+          <img src="{{ detection.noise_image.url }}" alt="Noise" onclick="openImageViewer(this.src, 'Noise Pattern Analysis')">
+          <div class="viz-label">
+            Noise Pattern
+            <span class="tooltip">ℹ️
+              <span class="tooltiptext">Real cameras have characteristic noise patterns. AI-generated images lack natural sensor noise.</span>
+            </span>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Image Viewer Overlay -->
+    <div class="image-viewer-overlay" id="imageViewer">
+      <div class="viewer-controls">
+        <button class="viewer-btn" onclick="zoomIn()"><i class="fas fa-plus"></i></button>
+        <button class="viewer-btn" onclick="zoomOut()"><i class="fas fa-minus"></i></button>
+        <button class="viewer-btn" onclick="resetZoom()"><i class="fas fa-expand"></i></button>
+        <button class="viewer-btn" onclick="closeImageViewer()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="image-viewer-content">
+        <img id="viewerImage" class="viewer-image" alt="Zoomed view">
       </div>
     </div>
 
     <div class="analysis-grid">
       
       <div class="card">
-        <h3 class="card-title"><i class="fas fa-search"></i> Evidence ({{ evidence_list|length }})</h3>
+        <h3 class="card-title">
+          <i class="fas fa-search"></i> Evidence ({{ evidence_list|length }})
+          <span class="tooltip">ℹ️
+            <span class="tooltiptext">Specific findings from forensic analysis. Higher strength values indicate stronger evidence of AI generation.</span>
+          </span>
+        </h3>
         <div class="evidence-list">
           {% for evidence in evidence_list %}
           <div class="evidence-item">
@@ -289,7 +434,12 @@
       </div>
 
       <div class="card">
-        <h3 class="card-title"><i class="fas fa-chart-pie"></i> Component Analysis</h3>
+        <h3 class="card-title">
+          <i class="fas fa-chart-pie"></i> Component Analysis
+          <span class="tooltip">ℹ️
+            <span class="tooltiptext">Breakdown of detection methods. Each component analyzes different aspects: frequency patterns, noise, compression artifacts, color distribution, texture, and deep learning features.</span>
+          </span>
+        </h3>
         
         <div class="chart-container">
           <canvas id="radarChart"></canvas>
@@ -346,6 +496,117 @@
         }
       });
     });
+  </script>
+  
+  <script>
+    // Share functionality
+    const shareUrl = "{{ share_url }}";
+    const shareText = "Check out this AI detection result: {{ detection.verdict }} (Score: {{ detection.score|floatformat:0 }})";
+    
+    function shareTwitter() {
+      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+    }
+    
+    function shareFacebook() {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+    }
+    
+    function shareLinkedIn() {
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank');
+    }
+    
+    function shareWhatsApp() {
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank');
+    }
+    
+    function shareTelegram() {
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+    }
+    
+    function copyLink() {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('Link copied to clipboard!');
+      });
+    }
+    
+    // Interactive Image Viewer
+    let currentZoom = 1;
+    let isDragging = false;
+    let startX, startY, translateX = 0, translateY = 0;
+    
+    function openImageViewer(src, title) {
+      document.getElementById('imageViewer').style.display = 'flex';
+      document.getElementById('viewerImage').src = src;
+      currentZoom = 1;
+      translateX = 0;
+      translateY = 0;
+      updateImageTransform();
+    }
+    
+    function closeImageViewer() {
+      document.getElementById('imageViewer').style.display = 'none';
+    }
+    
+    function zoomIn() {
+      currentZoom = Math.min(currentZoom + 0.5, 5);
+      updateImageTransform();
+    }
+    
+    function zoomOut() {
+      currentZoom = Math.max(currentZoom - 0.5, 0.5);
+      updateImageTransform();
+    }
+    
+    function resetZoom() {
+      currentZoom = 1;
+      translateX = 0;
+      translateY = 0;
+      updateImageTransform();
+    }
+    
+    function updateImageTransform() {
+      const img = document.getElementById('viewerImage');
+      img.style.transform = `scale(${currentZoom}) translate(${translateX}px, ${translateY}px)`;
+    }
+    
+    // Image dragging
+    const viewerImage = document.getElementById('viewerImage');
+    viewerImage.addEventListener('mousedown', (e) => {
+      if (currentZoom > 1) {
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        viewerImage.style.cursor = 'grabbing';
+      }
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        updateImageTransform();
+      }
+    });
+    
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      viewerImage.style.cursor = 'move';
+    });
+    
+    // Close viewer on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeImageViewer();
+    });
+    
+    // Video Player with Timeline Markers (if video)
+    const mainVideo = document.getElementById('mainVideo');
+    if (mainVideo) {
+      // Add custom controls for suspicious frames
+      mainVideo.addEventListener('loadedmetadata', () => {
+        console.log('Video loaded, duration:', mainVideo.duration);
+        // You can add timeline markers here based on detection data
+      });
+    }
   </script>
 </body>
 </html>

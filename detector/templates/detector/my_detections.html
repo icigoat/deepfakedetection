@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Detection History - AI Media Detector</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="View your AI detection history">
+  <meta name="theme-color" content="#6d28d9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --dark: #111118;
+      --violet: #6d28d9;
+      --light-violet: #a78bfa;
+      --text: #e0e0ff;
+      --text-muted: #a0a0cc;
+      --accent: #7c3aed;
+      --glow: rgba(109, 40, 217, 0.25);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 15% 50%, var(--glow) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, var(--glow) 0%, transparent 30%);
+      background-attachment: fixed;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+    
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(109, 40, 217, 0.18);
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--light-violet), #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+      text-decoration: none;
+    }
+    
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.6rem;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 44px;
+    }
+    
+    .btn:hover {
+      background: var(--light-violet);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
+    }
+    
+    /* Main Content */
+    main {
+      padding-top: 8rem;
+      padding-bottom: 4rem;
+      min-height: 100vh;
+    }
+    
+    .page-title {
+      font-size: 3.2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #c4b5fd, #a78bfa, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      margin-bottom: 3rem;
+    }
+    
+    /* User Info Card */
+    .user-info-card {
+      background: rgba(30, 30, 45, 0.5);
+      border: 1px solid rgba(109, 40, 217, 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 3rem;
+      backdrop-filter: blur(6px);
+    }
+    
+    .user-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--light-violet);
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    /* Detection Grid */
+    .detection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .detection-card {
+      background: rgba(30, 30, 45, 0.5);
+      border: 1px solid rgba(109, 40, 217, 0.25);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.4s;
+      backdrop-filter: blur(6px);
+    }
+    
+    .detection-card:hover {
+      transform: translateY(-12px);
+      border-color: var(--light-violet);
+      box-shadow: 0 20px 40px rgba(109, 40, 217, 0.18);
+    }
+    
+    .verdict {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .score {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--light-violet);
+      margin-bottom: 0.5rem;
+    }
+    
+    .confidence {
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+    
+    .meta-info {
+      display: flex;
+      gap: 1.5rem;
+      margin: 1rem 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .date {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(109, 40, 217, 0.2);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: rgba(30, 30, 45, 0.5);
+      border: 1px solid rgba(109, 40, 217, 0.3);
+      border-radius: 16px;
+    }
+    
+    .empty-icon {
+      font-size: 4rem;
+      color: var(--light-violet);
+      margin-bottom: 1.5rem;
+    }
+    
+    .empty-text {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 3rem 0;
+      background: var(--dark);
+      border-top: 1px solid rgba(109, 40, 217, 0.15);
+      text-align: center;
+      color: var(--text-muted);
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .page-title { font-size: 2rem; }
+      .page-subtitle { font-size: 1rem; }
+      .detection-grid { grid-template-columns: 1fr; }
+      .user-stats { grid-template-columns: 1fr; }
+      .logo { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <nav>
+        <a href="/" class="logo">AI Media Detector</a>
+        <a href="/" class="btn"><i class="fas fa-home"></i> Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      <h1 class="page-title"><i class="fas fa-history"></i> My Detection History</h1>
+      <p class="page-subtitle">View all your past AI media detections</p>
+      
+      <!-- User Info Card -->
+      <div class="user-info-card">
+        <div class="user-stats">
+          <div class="stat-item">
+            <div class="stat-value">{{ user.detection_count }}</div>
+            <div class="stat-label">Total Detections</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ user.first_visit|date:"M d, Y" }}</div>
+            <div class="stat-label">Member Since</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ user.last_visit|date:"M d" }}</div>
+            <div class="stat-label">Last Visit</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Detection Grid -->
+      {% if detections %}
+      <div class="detection-grid">
+        {% for detection in detections %}
+        <div class="detection-card">
+          <div class="verdict">{{ detection.verdict }}</div>
+          <div class="score">{{ detection.score|floatformat:0 }}</div>
+          <div class="confidence">
+            <i class="fas fa-bullseye"></i> {{ detection.confidence|floatformat:0 }}% Confidence
+          </div>
+          
+          <div class="meta-info">
+            <div class="meta-item">
+              <i class="fas fa-eye"></i> {{ detection.view_count }}
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-share"></i> {{ detection.share_count }}
+            </div>
+          </div>
+          
+          <div class="date">
+            <i class="fas fa-clock"></i> {{ detection.created_at|date:"F d, Y H:i" }}
+          </div>
+          
+          <a href="{% url 'detector:result' detection.slug %}" class="btn" style="width: 100%; margin-top: 1.5rem;">
+            <i class="fas fa-search"></i> View Details
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+        <div class="empty-text">No detections yet. Upload your first file to get started!</div>
+        <a href="/" class="btn"><i class="fas fa-upload"></i> Upload Now</a>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2026 AI Media Detector – Advanced Deepfake Detection</p>
+    </div>
+  </footer>
+</body>
+</html>
