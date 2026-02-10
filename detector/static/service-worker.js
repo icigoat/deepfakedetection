@@ -6,8 +6,9 @@ const RUNTIME_CACHE = 'ai-detector-runtime';
 const STATIC_ASSETS = [
   '/',
   '/static/manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  '/static/favicon.ico',
+  '/static/icons/icon-192x192.png',
+  '/static/icons/icon-512x512.png'
 ];
 
 // Install event - cache static assets
@@ -17,7 +18,12 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[Service Worker] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        // Try to cache, but don't fail if some assets are unavailable
+        return Promise.allSettled(
+          STATIC_ASSETS.map(url => 
+            cache.add(url).catch(err => console.log('[Service Worker] Failed to cache:', url))
+          )
+        );
       })
       .then(() => self.skipWaiting())
   );
@@ -45,18 +51,23 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip cross-origin requests
+  // Skip cross-origin requests except for CDN resources
   if (url.origin !== location.origin) {
     // For CDN resources, use cache first
-    if (url.hostname.includes('cdnjs.cloudflare.com') || url.hostname.includes('cdn.jsdelivr.net')) {
+    if (url.hostname.includes('cdnjs.cloudflare.com') || 
+        url.hostname.includes('cdn.jsdelivr.net') ||
+        url.hostname.includes('fonts.googleapis.com')) {
       event.respondWith(
         caches.match(request).then((cachedResponse) => {
           return cachedResponse || fetch(request).then((response) => {
-            return caches.open(RUNTIME_CACHE).then((cache) => {
-              cache.put(request, response.clone());
-              return response;
-            });
-          });
+            if (response.status === 200) {
+              return caches.open(RUNTIME_CACHE).then((cache) => {
+                cache.put(request, response.clone());
+                return response;
+              });
+            }
+            return response;
+          }).catch(() => cachedResponse);
         })
       );
     }
@@ -64,7 +75,9 @@ self.addEventListener('fetch', (event) => {
   }
 
   // For API calls (analyze endpoint), always use network
-  if (url.pathname.includes('/analyze/')) {
+  if (url.pathname.includes('/analyze/') || 
+      url.pathname.includes('/admin/') ||
+      url.pathname.includes('/stats/')) {
     event.respondWith(fetch(request));
     return;
   }
@@ -98,13 +111,14 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse;
           }
           
-          // If no cache, return offline page
-          return new Response(
-            '<html><body><h1>Offline</h1><p>You are currently offline. Please check your internet connection.</p></body></html>',
-            {
-              headers: { 'Content-Type': 'text/html' }
-            }
-          );
+          // Return offline page or error
+          return new Response('Offline - Please check your connection', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: new Headers({
+              'Content-Type': 'text/plain'
+            })
+          });
         });
       })
   );

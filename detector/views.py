@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core.files.base import ContentFile
 from django.views.decorators.csrf import csrf_exempt
 from .models import Detection, AnonymousUser
@@ -384,3 +384,19 @@ def stats_dashboard(request):
     }
     
     return render(request, 'detector/stats_dashboard.html', context)
+
+
+def manifest(request):
+    """Serve manifest.json with proper MIME type"""
+    manifest_path = os.path.join(os.path.dirname(__file__), 'static', 'manifest.json')
+    with open(manifest_path, 'r') as f:
+        manifest_data = f.read()
+    return HttpResponse(manifest_data, content_type='application/manifest+json')
+
+
+def service_worker(request):
+    """Serve service-worker.js with proper MIME type"""
+    sw_path = os.path.join(os.path.dirname(__file__), 'static', 'service-worker.js')
+    with open(sw_path, 'r') as f:
+        sw_data = f.read()
+    return HttpResponse(sw_data, content_type='application/javascript')

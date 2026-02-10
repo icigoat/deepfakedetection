@@ -15,4 +15,8 @@ urlpatterns = [
     path('my-detections/', views.my_detections, name='my_detections'),
     path('share/<path:slug>/', views.share_detection, name='share'),
     path('stats/', views.stats_dashboard, name='stats'),
+    
+    # PWA files with proper MIME types
+    path('manifest.json', views.manifest, name='manifest'),
+    path('service-worker.js', views.service_worker, name='service_worker'),
 ]

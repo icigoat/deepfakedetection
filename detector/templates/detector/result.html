@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <!-- PWA Manifest -->
-  <link rel="manifest" href="/static/manifest.json">
+  <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png">
   <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
@@ -339,24 +339,9 @@
       <div class="info-tag"><i class="fas fa-layer-group"></i> Frames: <strong>{{ detection.info.total_frames }}</strong></div>
     </div>
 
-    <!-- Share Buttons -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-      <button onclick="shareTwitter()" class="btn" style="background: #1DA1F2; font-size: 0.9rem;">
-        <i class="fab fa-twitter"></i> Twitter
-      </button>
-      <button onclick="shareFacebook()" class="btn" style="background: #4267B2; font-size: 0.9rem;">
-        <i class="fab fa-facebook"></i> Facebook
-      </button>
-      <button onclick="shareLinkedIn()" class="btn" style="background: #0077B5; font-size: 0.9rem;">
-        <i class="fab fa-linkedin"></i> LinkedIn
-      </button>
-      <button onclick="shareWhatsApp()" class="btn" style="background: #25D366; font-size: 0.9rem;">
-        <i class="fab fa-whatsapp"></i> WhatsApp
-      </button>
-      <button onclick="shareTelegram()" class="btn" style="background: #0088cc; font-size: 0.9rem;">
-        <i class="fab fa-telegram"></i> Telegram
-      </button>
-      <button onclick="copyLink()" class="btn" style="background: #6c757d; font-size: 0.9rem;">
+    <!-- Share Button -->
+    <div style="margin-bottom: 1.5rem;">
+      <button onclick="copyLink()" class="btn" style="background: var(--accent); font-size: 0.9rem;">
         <i class="fas fa-link"></i> Copy Link
       </button>
     </div>
@@ -501,30 +486,18 @@
   <script>
     // Share functionality
     const shareUrl = "{{ share_url }}";
-    const shareText = "Check out this AI detection result: {{ detection.verdict }} (Score: {{ detection.score|floatformat:0 }})";
-    
-    function shareTwitter() {
-      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
-    }
-    
-    function shareFacebook() {
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
-    }
-    
-    function shareLinkedIn() {
-      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank');
-    }
-    
-    function shareWhatsApp() {
-      window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank');
-    }
-    
-    function shareTelegram() {
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
-    }
     
     function copyLink() {
       navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('Link copied to clipboard!');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = shareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
         alert('Link copied to clipboard!');
       });
     }
@@ -605,6 +578,21 @@
       mainVideo.addEventListener('loadedmetadata', () => {
         console.log('Video loaded, duration:', mainVideo.duration);
         // You can add timeline markers here based on detection data
+      });
+    }
+  </script>
+  
+  <script>
+    // Register service worker for PWA functionality
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('✅ Service Worker registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('❌ Service Worker registration failed:', error);
+          });
       });
     }
   </script>
