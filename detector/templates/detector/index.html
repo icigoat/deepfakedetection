@@ -398,18 +398,108 @@
       padding: 0 2rem;
     }
 
+    /* AI-Themed Spinner */
     .spinner {
-      width: 80px;
-      height: 80px;
-      border: 6px solid rgba(167, 139, 250, 0.2);
-      border-top-color: var(--light-violet);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+      width: 120px;
+      height: 120px;
+      position: relative;
       margin: 0 auto 2rem;
     }
+    
+    .spinner-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+    }
+    
+    .spinner-ring:nth-child(1) {
+      border-top-color: var(--light-violet);
+      animation-duration: 1.5s;
+    }
+    
+    .spinner-ring:nth-child(2) {
+      border-right-color: var(--accent);
+      animation-duration: 2s;
+      animation-direction: reverse;
+    }
+    
+    .spinner-ring:nth-child(3) {
+      border-bottom-color: var(--violet);
+      animation-duration: 2.5s;
+    }
+    
+    .spinner-core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--violet), var(--light-violet));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 30px rgba(109, 40, 217, 0.5);
+    }
+    
+    .spinner-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--light-violet);
+      border-radius: 50%;
+      opacity: 0;
+      animation: particleFloat 3s ease-in-out infinite;
+    }
+    
+    .particle:nth-child(1) { top: 0; left: 50%; animation-delay: 0s; }
+    .particle:nth-child(2) { top: 25%; right: 0; animation-delay: 0.5s; }
+    .particle:nth-child(3) { bottom: 0; left: 50%; animation-delay: 1s; }
+    .particle:nth-child(4) { top: 25%; left: 0; animation-delay: 1.5s; }
+    .particle:nth-child(5) { top: 50%; right: 10%; animation-delay: 2s; }
+    .particle:nth-child(6) { bottom: 25%; left: 10%; animation-delay: 2.5s; }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { 
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 30px rgba(109, 40, 217, 0.5);
+      }
+      50% { 
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 50px rgba(109, 40, 217, 0.8);
+      }
+    }
+    
+    @keyframes particleFloat {
+      0% {
+        opacity: 0;
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(-30px) scale(1.5);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-60px) scale(0.5);
+      }
     }
 
     .loading-text {
@@ -425,6 +515,16 @@
       color: var(--text-muted);
       font-size: 1.1rem;
       margin-bottom: 2rem;
+    }
+    
+    /* Large Upload Percentage Display */
+    .upload-percentage {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--light-violet);
+      margin: 1.5rem 0;
+      text-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+      letter-spacing: -2px;
     }
 
     /* ─── PROGRESS BAR ─── */
@@ -718,10 +818,28 @@
   <!-- ─── LOADING OVERLAY ─── -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-content">
-      <div class="spinner" id="spinner"></div>
-      <div class="progress-percentage" id="progressPercentage" style="display: none;">0%</div>
+      <div class="spinner" id="spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-core" id="spinnerCore">
+          <i class="fas fa-brain"></i>
+        </div>
+        <div class="spinner-particles">
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+        </div>
+      </div>
       <div class="loading-text" id="loadingText">Uploading Media</div>
       <div class="loading-subtext" id="loadingSubtext">Preparing your file...</div>
+      
+      <!-- Large Percentage Display -->
+      <div class="upload-percentage" id="uploadPercentage" style="display: none;">0%</div>
+      
       <div class="progress-container" id="progressContainer">
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" id="progressBar"></div>
@@ -1086,16 +1204,16 @@
       
       // Get elements
       const spinner = document.getElementById('spinner');
-      const progressPercentage = document.getElementById('progressPercentage');
+      const uploadPercentage = document.getElementById('uploadPercentage');
       const loadingText = document.getElementById('loadingText');
       const loadingSubtext = document.getElementById('loadingSubtext');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
       const progressText = document.getElementById('progressText');
       
-      // Initial state - show upload progress
-      spinner.style.display = 'none';
-      progressPercentage.style.display = 'block';
+      // Initial state - show AI animation from the start
+      spinner.style.display = 'block';
+      uploadPercentage.style.display = 'block';
       progressContainer.style.display = 'block';
       loadingText.textContent = 'Uploading Media';
       loadingSubtext.textContent = 'Preparing your file...';
@@ -1109,7 +1227,16 @@
           const percentComplete = Math.round((e.loaded / e.total) * 100);
           progressBar.style.width = percentComplete + '%';
           progressText.textContent = percentComplete + '% uploaded';
-          progressPercentage.textContent = percentComplete + '%';
+          uploadPercentage.textContent = percentComplete + '%';
+          
+          // Update subtext based on progress
+          if (percentComplete < 30) {
+            loadingSubtext.textContent = 'Preparing your file...';
+          } else if (percentComplete < 70) {
+            loadingSubtext.textContent = 'Uploading to server...';
+          } else {
+            loadingSubtext.textContent = 'Almost there...';
+          }
         }
       });
       
@@ -1117,15 +1244,35 @@
       xhr.upload.addEventListener('load', () => {
         progressBar.style.width = '100%';
         progressText.textContent = '100% uploaded';
-        progressPercentage.textContent = '100%';
+        uploadPercentage.textContent = '100%';
         
-        // After a brief moment, switch to analysis animation
+        // Switch to AI analysis animation
         setTimeout(() => {
-          spinner.style.display = 'block';
-          progressPercentage.style.display = 'none';
+          uploadPercentage.style.display = 'none';
           progressContainer.style.display = 'none';
-          loadingText.textContent = 'Analyzing Media';
-          loadingSubtext.textContent = 'Running forensic analysis...';
+          loadingText.textContent = 'AI Analysis in Progress';
+          loadingSubtext.textContent = 'Running 8 forensic detection algorithms...';
+          
+          // Cycle through analysis stages
+          const stages = [
+            'Analyzing frequency patterns...',
+            'Detecting noise anomalies...',
+            'Checking compression artifacts...',
+            'Examining color distribution...',
+            'Running deep learning models...',
+            'Calculating AI probability...'
+          ];
+          
+          let stageIndex = 0;
+          const stageInterval = setInterval(() => {
+            if (stageIndex < stages.length) {
+              loadingSubtext.textContent = stages[stageIndex];
+              stageIndex++;
+            } else {
+              clearInterval(stageInterval);
+              loadingSubtext.textContent = 'Finalizing results...';
+            }
+          }, 2000);
         }, 500);
       });
       
@@ -1136,12 +1283,8 @@
         if (xhr.status === 200) {
           const data = JSON.parse(xhr.responseText);
           if (data.success) {
-            // Check if anime slugs are enabled
-            if (data.use_slugs && data.detection_slug) {
-              window.location.href = `/results/${data.detection_slug}/`;
-            } else {
-              window.location.href = `/result/${data.detection_id}/`;
-            }
+            // Always use slug
+            window.location.href = `/results/${data.detection_slug}/`;
           } else {
             showAlert('Analysis Failed', data.error || 'Unknown error occurred', 'error');
             clearFile();

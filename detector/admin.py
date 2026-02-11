@@ -20,13 +20,6 @@ class CustomAdminSite(admin.AdminSite):
 
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):
-    list_display = ['use_anime_slugs']
-    fieldsets = (
-        ('URL Settings', {
-            'fields': ('use_anime_slugs',),
-            'description': 'Toggle anime/motivational quote URLs on or off'
-        }),
-    )
     
     def has_add_permission(self, request):
         # Only allow one instance

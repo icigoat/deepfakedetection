@@ -25,6 +25,7 @@
       --text-muted: #a0a0cc;
       --accent: #7c3aed;
       --glow: rgba(109, 40, 217, 0.25);
+      --danger: #ef4444;
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -253,6 +254,102 @@
       .user-stats { grid-template-columns: 1fr; }
       .logo { font-size: 1.3rem; }
     }
+    
+    /* Custom Delete Confirmation Modal */
+    .delete-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+    
+    .delete-modal {
+      background: var(--dark);
+      border: 2px solid var(--danger);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(239, 68, 68, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .delete-modal-icon {
+      font-size: 3rem;
+      color: #ef4444;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .delete-modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .delete-modal-message {
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .delete-modal-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .modal-btn {
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+      min-width: 120px;
+    }
+    
+    .modal-btn-cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+    
+    .modal-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .modal-btn-delete {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .modal-btn-delete:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -317,6 +414,10 @@
           <a href="{% url 'detector:result' detection.slug %}" class="btn" style="width: 100%; margin-top: 1.5rem;">
             <i class="fas fa-search"></i> View Details
           </a>
+          
+          <button onclick="deleteDetection('{{ detection.slug }}')" class="btn" style="width: 100%; margin-top: 0.5rem; background: var(--danger);">
+            <i class="fas fa-trash"></i> Delete
+          </button>
         </div>
         {% endfor %}
       </div>
@@ -337,7 +438,81 @@
     </div>
   </footer>
   
+  <!-- Delete Confirmation Modal -->
+  <div class="delete-modal-overlay" id="deleteModal">
+    <div class="delete-modal">
+      <div class="delete-modal-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <div class="delete-modal-title">Delete Detection?</div>
+      <div class="delete-modal-message">
+        This action cannot be undone. The detection and all its data will be permanently removed.
+      </div>
+      <div class="delete-modal-buttons">
+        <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button class="modal-btn modal-btn-delete" onclick="confirmDelete()">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+  
   <script>
+    // Delete detection function with custom modal
+    let deleteSlug = null;
+    
+    function deleteDetection(slug) {
+      deleteSlug = slug;
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+    
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+      deleteSlug = null;
+    }
+    
+    function confirmDelete() {
+      if (!deleteSlug) return;
+      
+      fetch(`/delete/${deleteSlug}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          closeDeleteModal();
+          location.reload();
+        } else {
+          closeDeleteModal();
+          alert('Error: ' + (data.error || 'Failed to delete detection'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        closeDeleteModal();
+        alert('Failed to delete detection. Please try again.');
+      });
+    }
+    
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDeleteModal();
+      }
+    });
+    
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', (e) => {
+      if (e.target.id === 'deleteModal') {
+        closeDeleteModal();
+      }
+    });
+    
     // Register service worker for PWA functionality
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -24,10 +24,6 @@ class AnonymousUser(models.Model):
 
 class SiteSettings(models.Model):
     """Global site settings - only one instance should exist"""
-    use_anime_slugs = models.BooleanField(
-        default=False,
-        help_text="Enable anime/motivational quote URLs (e.g., /results/arise-shadow-soldiers/)"
-    )
     
     class Meta:
         verbose_name = "Site Settings"
@@ -71,9 +67,8 @@ class Detection(models.Model):
     view_count = models.IntegerField(default=0)
     
     def save(self, *args, **kwargs):
-        # Only generate slug if anime slugs are enabled
-        settings = SiteSettings.get_settings()
-        if settings.use_anime_slugs and not self.slug:
+        # Always generate slug if not present
+        if not self.slug:
             # Get existing slugs to avoid duplicates
             existing_slugs = set(Detection.objects.values_list('slug', flat=True))
             self.slug = generate_unique_slug(existing_slugs)

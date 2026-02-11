@@ -46,6 +46,8 @@
       background-image: radial-gradient(circle at 50% 0%, var(--glow) 0%, transparent 50%);
       background-attachment: fixed;
       -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; }
@@ -245,13 +247,15 @@
       .container { padding: 0 1rem; }
       
       /* Header */
+      header { padding: 0.8rem 0; }
+      nav { flex-wrap: wrap; gap: 0.5rem; }
       .logo { font-size: 1rem; }
-      .btn { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+      .btn { padding: 0.5rem 0.8rem; font-size: 0.75rem; min-height: 40px; }
       
       /* Score Banner */
       .score-banner { 
         flex-direction: column; 
-        padding: 1.5rem; 
+        padding: 1.2rem; 
         gap: 1rem; 
         text-align: center; 
       }
@@ -262,16 +266,23 @@
       /* Media Info Bar */
       .media-info-bar { 
         flex-direction: column; 
-        gap: 0.8rem; 
-        padding: 1rem; 
+        gap: 0.6rem; 
+        padding: 0.8rem; 
         font-size: 0.8rem; 
       }
       .info-tag { justify-content: center; }
       
+      /* Share Buttons */
+      .btn { 
+        flex: 1 1 calc(50% - 0.5rem);
+        padding: 0.6rem 0.5rem;
+        font-size: 0.8rem;
+      }
+      
       /* Visualizations */
       .viz-grid { grid-template-columns: 1fr; gap: 1rem; }
       .viz-item { padding: 0.8rem; }
-      .viz-label { font-size: 0.7rem; }
+      .viz-label { font-size: 0.8rem; }
       
       /* Cards */
       .card { padding: 1rem; }
@@ -291,16 +302,232 @@
       .comp-label { width: 60px; font-size: 0.7rem; }
       .comp-bar-bg { height: 5px; }
       .comp-val { width: 25px; font-size: 0.75rem; }
+      
+      /* Image Viewer */
+      .viewer-controls { top: 10px; right: 10px; gap: 5px; }
+      .viewer-btn { padding: 8px 12px; font-size: 1rem; }
+      
+      /* Delete Modal */
+      .delete-modal { padding: 1.5rem; }
+      .delete-modal-icon { font-size: 2.5rem; }
+      .delete-modal-title { font-size: 1.3rem; }
+      .delete-modal-buttons { flex-direction: column; }
+      .modal-btn { width: 100%; }
     }
     
     @media (max-width: 480px) {
-      /* Extra small screens */
+      /* Extra small screens (6-7 inch phones) */
+      .container { padding: 0 0.75rem; }
+      
+      /* Header */
+      .logo { font-size: 0.9rem; }
+      nav > div { width: 100%; justify-content: space-between; }
+      
+      /* Score Banner */
+      .score-banner { padding: 1rem; margin: 1rem 0; }
       .score-value { font-size: 2rem; }
       .verdict-text { font-size: 0.9rem; }
-      .media-info-bar { font-size: 0.75rem; }
+      .confidence-text { font-size: 0.75rem; }
+      
+      /* Media Info Bar */
+      .media-info-bar { 
+        font-size: 0.75rem; 
+        padding: 0.6rem;
+        gap: 0.5rem;
+      }
+      
+      /* Share Buttons - Stack vertically on very small screens */
+      .btn { 
+        flex: 1 1 100%;
+        font-size: 0.75rem;
+        padding: 0.6rem;
+      }
+      
+      /* Visualizations */
+      .viz-item img, .viz-item video { 
+        aspect-ratio: 16/9; 
+        object-fit: contain;
+      }
+      .viz-label { font-size: 0.7rem; }
+      
+      /* Cards */
+      .card { padding: 0.8rem; margin-bottom: 1rem; }
       .card-title { font-size: 0.85rem; }
+      
+      /* Evidence */
+      .evidence-item { padding: 0.6rem; }
       .evidence-desc { font-size: 0.8rem; }
+      .evidence-meta { font-size: 0.65rem; }
+      
+      /* Chart */
       .chart-container { height: 160px; }
+      
+      /* Components */
+      .component-row { font-size: 0.7rem; }
+      .comp-label { width: 50px; font-size: 0.65rem; }
+      .comp-val { font-size: 0.7rem; }
+      
+      /* Tooltips - Adjust for small screens */
+      .tooltip .tooltiptext {
+        width: 250px;
+        margin-left: -125px;
+        font-size: 0.75rem;
+      }
+      
+      /* Image Viewer */
+      .viewer-controls {
+        top: 5px;
+        right: 5px;
+        gap: 3px;
+      }
+      .viewer-btn {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+      }
+      
+      /* Delete Modal */
+      .delete-modal {
+        padding: 1.2rem;
+        width: 95%;
+      }
+      .delete-modal-icon { font-size: 2rem; }
+      .delete-modal-title { font-size: 1.1rem; }
+      .delete-modal-message { font-size: 0.85rem; margin-bottom: 1.5rem; }
+      .modal-btn { padding: 0.6rem 1.5rem; font-size: 0.85rem; }
+    }
+    
+    /* Landscape mode for small devices */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .score-banner { flex-direction: row; text-align: left; }
+      .viz-grid { grid-template-columns: repeat(2, 1fr); }
+      .analysis-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* Share buttons responsive */
+    @media (max-width: 768px) {
+      .btn { 
+        padding: 0.6rem 1rem; 
+        font-size: 0.85rem; 
+        min-height: 44px;
+      }
+    }
+    
+    /* Custom Delete Confirmation Modal */
+    .delete-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+    
+    .delete-modal {
+      background: var(--dark);
+      border: 2px solid var(--danger);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(239, 68, 68, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes popupSlideIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+    
+    @keyframes popupSlideOut {
+      from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+    }
+    
+    .delete-modal-icon {
+      font-size: 3rem;
+      color: var(--danger);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .delete-modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .delete-modal-message {
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .delete-modal-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .modal-btn {
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+      min-width: 120px;
+    }
+    
+    .modal-btn-cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+    
+    .modal-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .modal-btn-delete {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .modal-btn-delete:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
     }
   </style>
 </head>
@@ -329,7 +556,7 @@
         <div class="confidence-text"><i class="fas fa-bullseye"></i> {{ detection.confidence|floatformat:0 }}% Confidence</div>
       </div>
       <div class="btn" style="background: rgba(255,255,255,0.1)">
-        <i class="fas fa-video"></i> VIDEO
+        <i class="fas fa-{% if detection.file_type == 'video' %}video{% else %}image{% endif %}"></i> {{ detection.file_type|upper }}
       </div>
     </div>
 
@@ -340,10 +567,23 @@
     </div>
 
     <!-- Share Button -->
-    <div style="margin-bottom: 1.5rem;">
-      <button onclick="copyLink()" class="btn" style="background: var(--accent); font-size: 0.9rem;">
+    <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+      <!-- Native Share Button (shows all available apps) -->
+      <button onclick="shareNative()" class="btn" style="background: var(--accent); font-size: 0.9rem;">
+        <i class="fas fa-share-alt"></i> Share
+      </button>
+      
+      <!-- Copy Link (fallback) -->
+      <button onclick="copyLink()" class="btn" style="background: rgba(255,255,255,0.1); font-size: 0.9rem;">
         <i class="fas fa-link"></i> Copy Link
       </button>
+      
+      {% if is_owner %}
+      <!-- Delete Button (only for owner) -->
+      <button onclick="deleteDetection()" class="btn" style="background: var(--danger); font-size: 0.9rem;">
+        <i class="fas fa-trash"></i> Delete
+      </button>
+      {% endif %}
     </div>
 
     <div class="viz-section">
@@ -398,6 +638,27 @@
         <img id="viewerImage" class="viewer-image" alt="Zoomed view">
       </div>
     </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="delete-modal-overlay" id="deleteModal">
+      <div class="delete-modal">
+        <div class="delete-modal-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="delete-modal-title">Delete Detection?</div>
+        <div class="delete-modal-message">
+          This action cannot be undone. The detection and all its data will be permanently removed.
+        </div>
+        <div class="delete-modal-buttons">
+          <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button class="modal-btn modal-btn-delete" onclick="confirmDelete()">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div class="analysis-grid">
       
@@ -431,7 +692,7 @@
         </div>
 
         <div class="component-list">
-          {% for key, value in components.items %}
+          {% for key, value in detection.components.items %}
           <div class="component-row">
             <span class="comp-label">{{ key|title }}</span>
             <div class="comp-bar-bg">
@@ -448,11 +709,19 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const ctx = document.getElementById('radarChart').getContext('2d');
-      const components = {{ components|safe }};
+      const ctx = document.getElementById('radarChart');
+      if (!ctx) return;
       
-      const labels = Object.keys(components).map(k => k.charAt(0).toUpperCase() + k.slice(1, 4));
-      const dataValues = Object.values(components);
+      const componentsData = JSON.parse('{{ components|escapejs }}');
+      
+      // Check if components data is valid
+      if (!componentsData || typeof componentsData !== 'object') {
+        console.error('Invalid components data');
+        return;
+      }
+      
+      const labels = Object.keys(componentsData).map(k => k.charAt(0).toUpperCase() + k.slice(1, 4));
+      const dataValues = Object.values(componentsData);
 
       new Chart(ctx, {
         type: 'radar',
@@ -486,6 +755,34 @@
   <script>
     // Share functionality
     const shareUrl = "{{ share_url }}";
+    const detectionSlug = "{{ detection.slug }}";
+    const shareText = "Check out this AI detection result: {{ detection.verdict }} ({{ detection.score|floatformat:0 }}% AI-generated)";
+    
+    // Native Share API - Shows all available apps (Instagram, Facebook, WhatsApp, etc.)
+    async function shareNative() {
+      // Check if Web Share API is supported
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'AI Detection Result',
+            text: shareText,
+            url: shareUrl
+          });
+          console.log('✅ Shared successfully');
+        } catch (err) {
+          // User cancelled or error occurred
+          if (err.name !== 'AbortError') {
+            console.error('Share failed:', err);
+            // Fallback to copy link
+            copyLink();
+          }
+        }
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        alert('Share not supported on this browser. Use "Copy Link" instead.');
+        copyLink();
+      }
+    }
     
     function copyLink() {
       navigator.clipboard.writeText(shareUrl).then(() => {
@@ -501,6 +798,131 @@
         alert('Link copied to clipboard!');
       });
     }
+    
+    // Delete confirmation modal
+    function deleteDetection() {
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+    
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+    
+    function confirmDelete() {
+      fetch(`/delete/${detectionSlug}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          closeDeleteModal();
+          showSuccessPopup();
+        } else {
+          closeDeleteModal();
+          showErrorPopup(data.error || 'Failed to delete detection');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        closeDeleteModal();
+        showErrorPopup('Failed to delete detection. Please try again.');
+      });
+    }
+    
+    // Custom Success Popup
+    function showSuccessPopup() {
+      const popup = document.createElement('div');
+      popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(30, 30, 45, 0.98);
+        border: 2px solid #10b981;
+        border-radius: 16px;
+        padding: 2rem;
+        z-index: 10001;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3);
+        animation: popupSlideIn 0.3s ease-out;
+      `;
+      
+      popup.innerHTML = `
+        <div style="font-size: 3.5rem; color: #10b981; margin-bottom: 1rem;">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">
+          Deleted Successfully!
+        </div>
+        <div style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Detection has been permanently removed
+        </div>
+      `;
+      
+      document.body.appendChild(popup);
+      
+      setTimeout(() => {
+        popup.style.animation = 'popupSlideOut 0.3s ease-in';
+        setTimeout(() => {
+          window.location.href = '/my-detections/';
+        }, 300);
+      }, 1500);
+    }
+    
+    // Custom Error Popup
+    function showErrorPopup(message) {
+      const popup = document.createElement('div');
+      popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(30, 30, 45, 0.98);
+        border: 2px solid #ef4444;
+        border-radius: 16px;
+        padding: 2rem;
+        z-index: 10001;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(239, 68, 68, 0.3);
+        animation: popupSlideIn 0.3s ease-out;
+        max-width: 400px;
+      `;
+      
+      popup.innerHTML = `
+        <div style="font-size: 3.5rem; color: #ef4444; margin-bottom: 1rem;">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">
+          Error
+        </div>
+        <div style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          ${message}
+        </div>
+        <button onclick="this.parentElement.remove()" style="background: var(--accent); color: white; border: none; padding: 0.7rem 1.8rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+          OK
+        </button>
+      `;
+      
+      document.body.appendChild(popup);
+    }
+    
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDeleteModal();
+        closeImageViewer();
+      }
+    });
+    
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', (e) => {
+      if (e.target.id === 'deleteModal') {
+        closeDeleteModal();
+      }
+    });
     
     // Interactive Image Viewer
     let currentZoom = 1;
@@ -544,6 +966,8 @@
     
     // Image dragging
     const viewerImage = document.getElementById('viewerImage');
+    
+    // Mouse events
     viewerImage.addEventListener('mousedown', (e) => {
       if (currentZoom > 1) {
         isDragging = true;
@@ -566,9 +990,27 @@
       viewerImage.style.cursor = 'move';
     });
     
-    // Close viewer on escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeImageViewer();
+    // Touch events for mobile
+    viewerImage.addEventListener('touchstart', (e) => {
+      if (currentZoom > 1 && e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - translateX;
+        startY = e.touches[0].clientY - translateY;
+        e.preventDefault();
+      }
+    });
+    
+    viewerImage.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches.length === 1) {
+        translateX = e.touches[0].clientX - startX;
+        translateY = e.touches[0].clientY - startY;
+        updateImageTransform();
+        e.preventDefault();
+      }
+    });
+    
+    viewerImage.addEventListener('touchend', () => {
+      isDragging = false;
     });
     
     // Video Player with Timeline Markers (if video)

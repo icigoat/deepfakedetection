@@ -173,22 +173,11 @@ def analyze(request):
             os.unlink(temp_file.name)
             detector.cleanup()
 
-            # Check if anime slugs are enabled
-            from .models import SiteSettings
-            settings = SiteSettings.get_settings()
-            
-            if settings.use_anime_slugs and detection.slug:
-                return JsonResponse({
-                    'success': True,
-                    'use_slugs': True,
-                    'detection_slug': detection.slug
-                })
-            else:
-                return JsonResponse({
-                    'success': True,
-                    'use_slugs': False,
-                    'detection_id': detection.id
-                })
+            # Always return slug
+            return JsonResponse({
+                'success': True,
+                'detection_slug': detection.slug
+            })
 
         except Exception as e:
             traceback.print_exc()
@@ -216,6 +205,9 @@ def result_by_slug(request, slug):
     from .user_tracking import get_or_create_anonymous_user
     anonymous_user = get_or_create_anonymous_user(request)
     
+    # Check if this detection belongs to the current user
+    is_owner = detection.anonymous_user == anonymous_user
+    
     # Parse evidence
     evidence_list = []
     if detection.evidence:
@@ -235,11 +227,16 @@ def result_by_slug(request, slug):
     # Generate share URL
     share_url = request.build_absolute_uri()
     
+    # Ensure components is JSON serializable
+    import json
+    components_json = json.dumps(detection.components if detection.components else {})
+    
     context = {
         'detection': detection,
-        'components': detection.components,
+        'components': components_json,
         'evidence_list': evidence_list,
         'share_url': share_url,
+        'is_owner': is_owner,
     }
     
     response = render(request, 'detector/result.html', context)
@@ -251,49 +248,6 @@ def result_by_slug(request, slug):
     return response
 
 
-def result_by_id(request, detection_id):
-    """Result view using numeric ID (fallback)"""
-    detection = get_object_or_404(Detection, id=detection_id)
-    
-    # Parse evidence
-    evidence_list = []
-    if detection.evidence:
-        if isinstance(detection.evidence, dict):
-            # If evidence is a dict
-            for category, items in detection.evidence.items():
-                for item in items:
-                    evidence_list.append({
-                        'category': category,
-                        'description': item.get('description', ''),
-                        'strength': item.get('strength', 0)
-                    })
-        elif isinstance(detection.evidence, list):
-            # If evidence is already a list
-            evidence_list = detection.evidence
-    
-    context = {
-        'detection': detection,
-        'components': detection.components,
-        'evidence_list': evidence_list,
-    }
-    return render(request, 'detector/result.html', context)
-
-    user_interp = None
-    context_info = {}
-
-    if isinstance(detection.info, dict):
-        user_interp = detection.info.get('user_interpretation')
-        context_info = detection.info.get('context', {})
-
-    context = {
-        'detection': detection,
-        'evidence_list': detection.evidence or [],
-        'components': detection.components or {},
-        'user_interpretation': user_interp,
-        'context_info': context_info,
-    }
-
-    return render(request, 'detector/result.html', context)
 
 
 
@@ -325,6 +279,38 @@ def share_detection(request, slug):
     
     # Redirect to result page
     return redirect('detector:result', slug=slug)
+
+
+@csrf_exempt
+def delete_detection(request, slug):
+    """Delete a detection (only owner can delete)"""
+    if request.method == 'POST':
+        detection = get_object_or_404(Detection, slug=slug)
+        
+        # Get anonymous user
+        from .user_tracking import get_or_create_anonymous_user
+        anonymous_user = get_or_create_anonymous_user(request)
+        
+        # Check if user owns this detection
+        if detection.anonymous_user != anonymous_user:
+            return JsonResponse({
+                'success': False,
+                'error': 'You do not have permission to delete this detection'
+            }, status=403)
+        
+        # Delete the detection
+        detection.delete()
+        
+        # Update user's detection count
+        anonymous_user.detection_count = max(0, anonymous_user.detection_count - 1)
+        anonymous_user.save(update_fields=['detection_count'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Detection deleted successfully'
+        })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
 
 def stats_dashboard(request):

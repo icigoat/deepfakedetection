@@ -137,10 +137,9 @@ python manage.py runserver
 #### **Site Settings**
 **Admin → Site Settings**
 
-- Toggle anime slugs ON/OFF
-- One-click switch between:
-  - `/results/arise-shadow-soldiers/a3f9b2c1/` (ON)
-  - `/result/123/` (OFF)
+- Anime/motivational slugs always enabled
+- All results use memorable URLs: `/results/arise-shadow-soldiers/a3f9b2c1/`
+- Slugs generated from anime quotes, motivational phrases, and live AI news
 
 ---
 
